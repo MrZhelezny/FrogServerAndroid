@@ -1,5 +1,6 @@
 package com.zhelezny.frog.server.domain.plugins
 
+import android.os.Build
 import com.zhelezny.frog.server.domain.Connection
 import com.zhelezny.frog.server.data.getRandomColor
 import io.ktor.server.application.*
@@ -18,8 +19,12 @@ val savedPlayers = mutableMapOf<String, String>()
 
 fun Application.configureSockets() {
     install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(15)
-        timeout = Duration.ofSeconds(15)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            pingPeriod = Duration.ofSeconds(15)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            timeout = Duration.ofSeconds(15)
+        }
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }

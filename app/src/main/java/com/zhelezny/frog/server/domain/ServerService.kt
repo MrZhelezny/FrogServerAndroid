@@ -8,6 +8,13 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.zhelezny.frog.server.domain.plugins.configureRouting
+import com.zhelezny.frog.server.domain.plugins.configureSockets
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.embeddedServer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope.coroutineContext
+import kotlinx.coroutines.launch
 
 class ServerService : Service() {
 
@@ -45,8 +52,12 @@ class ServerService : Service() {
 //            .build()
 //
 //        startForeground(1, notification)
-
-        startServer()
+        CoroutineScope(coroutineContext).launch {
+            embeddedServer(CIO, port = 8080, host = "0.0.0.0") {
+                configureRouting()
+                configureSockets()
+            }.start(wait = true)
+        }
 
         return START_NOT_STICKY
     }
