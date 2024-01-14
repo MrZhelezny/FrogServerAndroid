@@ -52,14 +52,18 @@ class ServerService : Service() {
 //            .build()
 //
 //        startForeground(1, notification)
-        CoroutineScope(coroutineContext).launch {
-            embeddedServer(CIO, port = 8080, host = "0.0.0.0") {
-                configureRouting()
-                configureSockets()
-            }.start(wait = true)
-        }
+        startServer()
 
         return START_NOT_STICKY
+    }
+
+    private fun startServer() {
+        CoroutineScope(coroutineContext).launch {
+            embeddedServer(CIO, host = "192.168.0.108", port = 22222) {
+                configureSockets()
+                configureRouting()
+            }.start(wait = true)
+        }
     }
 
     override fun onDestroy() {

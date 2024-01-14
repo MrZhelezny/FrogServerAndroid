@@ -1,6 +1,7 @@
 package com.zhelezny.frog.server.domain.logic
 
-import com.zhelezny.frog.data.Player
+import com.zhelezny.frog.server.data.Player
+
 
 class HandOuter(private var sessionPlayers: /*List<Player>*/Player) : HandOuterInterface {
 
