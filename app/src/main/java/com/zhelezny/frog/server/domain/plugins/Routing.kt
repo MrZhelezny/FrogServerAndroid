@@ -26,8 +26,10 @@ fun Application.configureRouting() {
         val TAG = "Routing"
         val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
 
+        val userForGameSession = mutableListOf<PlayerName>()
+
         webSocket("/joinGame") {
-            val userForGameSession = mutableListOf<PlayerName>()
+
             val thisConnection = Connection(this)
             connections += thisConnection
             try {
@@ -46,36 +48,28 @@ fun Application.configureRouting() {
                         it.session.send(jsonPlayerNames)
                     }
 
-                    when (connections.size) {
-                        1 -> {
-                            Log.d(TAG, "Старт таймер...")
-                            repeat(10) {
-                                delay(1000L)
-                            }
-                            Log.d(TAG, "Истёк таймер")
-                            //по истечению таймера проверяем сколько игроков было в очереди
-                            if (connections.size > 1) {
-                                val listColor = getRandomColor(connections.size)
-                                var i = 0
-                                connections.forEach {
-                                    val colorForConnection = listColor[i++]
-                                    Log.d(TAG, "Присваивание цвета: $colorForConnection")
-                                    it.session.send(colorForConnection.toString())
+                    Log.d(TAG, "Старт таймер...")
+                    repeat(20) {
+                        delay(1000L)
+                    }
 
-                                }
-                            } else {
-                                close(CloseReason(CloseReason.Codes.NORMAL, "Need one more player!!!"))
-                            }
-                        }
-                        5 -> {
+                    //по истечению таймера проверяем сколько игроков было в очереди
+                    Log.d(TAG, "Истёк таймер")
+                    userForGameSession.clear()
+                    when (connections.size) {
+                        in 2..5 -> {
                             val listColor = getRandomColor(connections.size)
                             var i = 0
                             connections.forEach {
-                                val colorForConnection = listColor[i]
-                                i++
+                                val colorForConnection = listColor[i++]
                                 Log.d(TAG, "Присваивание цвета: $colorForConnection")
-                                it.session.send(colorForConnection.toString())
+                                it.session.send("Color $colorForConnection")
                             }
+                            close(CloseReason(CloseReason.Codes.NORMAL, "End search session. Start GAME!"))
+                        }
+
+                        else -> {
+                            close(CloseReason(CloseReason.Codes.NORMAL, "Need one more player!!!"))
                         }
                     }
                 }

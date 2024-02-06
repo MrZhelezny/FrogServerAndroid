@@ -1,7 +1,11 @@
 package com.zhelezny.frog.server.data
 
-enum class Color {
-    YELLOW, RED, BLUE, PURPLE, GREEN
+enum class Color(val colorName: String) {
+    YELLOW("yellow"),
+    RED("red"),
+    BLUE("blue"),
+    PURPLE("purple"),
+    GREEN("green")
 }
 
 fun getRandomColor(countPlayers: Int): List<Color> {

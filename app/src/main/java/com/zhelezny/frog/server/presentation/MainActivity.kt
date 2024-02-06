@@ -19,10 +19,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.buttonStart.setOnClickListener {
             startService()
+            binding.buttonStart.isEnabled = false
         }
 
         binding.buttonStop.setOnClickListener {
             stopService()
+            binding.buttonStart.isEnabled = true
         }
     }
 

@@ -7,16 +7,26 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.zhelezny.frog.server.domain.plugins.configureRouting
 import com.zhelezny.frog.server.domain.plugins.configureSockets
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope.coroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.BindException
 
 class ServerService : Service() {
+
+    private val handler = CoroutineExceptionHandler { _, exception ->
+        Log.i(TAG, "CoroutineExceptionHandler got $exception")
+        Toast.makeText(this, "Сервер уже запущен", Toast.LENGTH_LONG).show()
+    }
+
+    val scope = Dispatchers.IO + handler
 
     override fun onCreate() {
         Log.i(TAG, "MainMenuService onCreate")
@@ -58,12 +68,21 @@ class ServerService : Service() {
     }
 
     private fun startServer() {
-        CoroutineScope(coroutineContext).launch {
-            embeddedServer(CIO, host = "192.168.0.108", port = 22222) {
-                configureSockets()
-                configureRouting()
-            }.start(wait = true)
+
+        CoroutineScope(scope).launch {
+            try {
+                embeddedServer(CIO, /*host = "192.168.0.108",*/ port = 11111) {
+                    configureSockets()
+                    configureRouting()
+                }.start(wait = true)
+            } catch (e: BindException) {
+                Log.e(TAG, e.message, e)
+//                Toast.makeText(this, "Сервер уже запущен", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Log.e(TAG, e.message, e)
+            }
         }
+
     }
 
     override fun onDestroy() {
